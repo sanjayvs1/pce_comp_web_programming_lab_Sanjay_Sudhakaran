@@ -1,0 +1,35 @@
+* {
+    font-family: sans-serif;
+    font-size: 12pt;
+}
+
+.wrapper {
+    max-width: 300px;
+    margin: auto;
+}
+
+.box {
+    display: flex;
+    flex-direction: column;
+    box-shadow:  0px 0px 80px rgba(0, 0, 0, 0.28);
+    border-radius: 0.5em;
+    padding: 2em;
+}
+
+.box input, .box button {
+    margin: 0.5em;
+    padding: 0.8em;
+    border-radius: 0.5em;
+    border: none;
+}
+
+.box input {
+    border: 2px solid black;
+}
+
+
+
+.box button {
+    background-color: purple;
+    color: white
+}
