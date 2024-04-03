@@ -1,13 +1,13 @@
 <?php
 $servername = "localhost";
+// $username = "if0_36291810";
+// $password = "6m608uwYh5qIv2";
 $username = "root";
-$password = ""; // No password by default
+$password = "";
 $database = "circlefit";
 
-// Create connection
 $conn = new mysqli($servername, $username, $password, $database);
 
-// Check connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }

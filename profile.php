@@ -1,63 +1,75 @@
 <?php
-// Initialize the session
+// Include database connection
+include 'db_connection.php';
+
+// Check if UserID is set in the session (assuming you're storing UserID in the session after login)
 session_start();
-// Check if the user is logged in, if not then redirect them to the login page
-if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
-  header("location: login.php");
-  exit;
+if (!isset($_SESSION["UserID"])) {
+    // Redirect to login page if UserID is not set
+    header("Location: login.php");
+    exit();
 }
-// Include the database connection file
-require_once "db_connection.php";
-// Retrieve user information from the database
-$sql = "SELECT id, username, email FROM users WHERE id = ?";
-if ($stmt = $conn->prepare($sql)) {
-  // Bind variables to the prepared statement as parameters
-  $stmt->bind_param("i", $_SESSION["id"]);
-  // Attempt to execute the prepared statement
-  if ($stmt->execute()) {
-    // Store result
-    $stmt->store_result();
-    // Check if user exists
-    if ($stmt->num_rows == 1) {
-      // Bind result variables
-      $stmt->bind_result($id, $username, $email);
-      if ($stmt->fetch()) {
-        // User information
-        $user_id = $id;
-        $user_username = $username;
-        $user_email = $email;
-      }
-    } else {
-      // Redirect to error page if user doesn't exist
-      header("location: error.php");
-      exit;
-    }
-  } else {
-    // Redirect to error page if query execution fails
-    header("location: error.php");
-    exit;
-  }
-  // Close statement
-  $stmt->close();
+
+// Retrieve UserID from session
+$UserID = $_SESSION["UserID"];
+
+// Fetch user data from the database
+$stmt = $conn->prepare("SELECT * FROM Users WHERE UserID = ?");
+$stmt->bind_param("i", $UserID);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows === 1) {
+    // Fetch user data
+    $row = $result->fetch_assoc();
+    $Username = $row['Username'];
+    $Email = $row['Email'];
+    $UserType = $row['UserType'];
+    $ProfilePicture = $row['ProfilePicture'];
+} else {
+    // No user found with the given UserID
+    echo "User not found.";
 }
-// Close connection
+
+// Close statement and connection
+$stmt->close();
 $conn->close();
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CircleFit - Profile</title>
-  <link rel="stylesheet" href="css/main.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <link rel="stylesheet" href="css/main.css">
 </head>
+
 <body>
-  <?php include 'includes/nav.php'; ?>
-  <div class="container">
-    <h2>Profile</h2>
-    <p><strong>Username:</strong> <?php echo $user_username; ?></p>
-    <p><strong>Email:</strong> <?php echo $user_email; ?></p>
-    <p><a href="welcome.php">Back to Welcome Page</a></p>
-  </div>
+    <div class="container">
+    <?php include 'includes/nav.php'; ?>
+        <main>
+        <div class="profile">
+            <?php if (!empty($ProfilePicture)): ?>
+                <img src="<?php echo $ProfilePicture; ?>" alt="Profile Picture" width="100">
+            <?php endif; ?>
+            <div class="profile-content">
+                <p><strong>Username:</strong>
+                    <?php echo $Username; ?>
+                </p>
+                <p><strong>Email:</strong>
+                    <?php echo $Email; ?>
+                </p>
+                <p><strong>User Type:</strong>
+                    <?php echo $UserType; ?>
+                </p>
+                <a class="action-link" href="profileEditor.php">Edit Profile</a>
+            </div>
+        </div>
+        </main>
+        <?php include 'includes/footer.php'; ?>
+    </div>
 </body>
+
 </html>
